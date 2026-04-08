@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Today</h1>
+<p class="muted">Log your affect, screen time, then check off your habits.</p>
+
+<form method="post">
+  <input type="hidden" name="form_type" value="affect">
+
+  <label>Valence (Unpleasant → Pleasant)</label>
+  <div class="range-wrap">
+    <div class="range-top">
+      <div class="muted" style="margin:0;">How pleasant do you feel?</div>
+      <div class="range-value" id="valenceLabel">0</div>
+    </div>
+    <input id="valence" type="range" name="valence" min="-2" max="2" step="1"
+           value="{{ today_valence if today_valence is not none else 0 }}">
+    <div class="range-hints"><span>Unpleasant</span><span>Neutral</span><span>Pleasant</span></div>
+  </div>
+
+  <label>Energy level (Low → High)</label>
+  <div class="range-wrap">
+    <div class="range-top">
+      <div class="muted" style="margin:0;">How energised do you feel?</div>
+      <div class="range-value" id="energyLabel">0</div>
+    </div>
+    <input id="energy" type="range" name="energy" min="-2" max="2" step="1"
+           value="{{ today_energy if today_energy is not none else 0 }}">
+    <div class="range-hints"><span>Low</span><span>Moderate</span><span>High</span></div>
+  </div>
+
+  <button type="submit">Save today’s affect</button>
+</form>
+
+<div class="divider"></div>
+
+<h2>Screen time</h2>
+<p class="muted" style="margin-top:6px;">Enter hours (e.g., 2.5).</p>
+
+<form method="post">
+  <input type="hidden" name="form_type" value="screen">
+
+  <label>Hours today</label>
+  <input type="number" step="0.25" min="0" max="24" name="hours" placeholder="e.g., 3.5"
+         value="{{ today_screen_hours }}" required>
+
+  <button type="submit">Save today’s screen time</button>
+</form>
+
+<div class="muted" style="margin-top:10px;">
+  Edit another date: <a href="{{ url_for('screen_time') }}">Screen time editor</a>
+</div>
+
+
+<div class="divider"></div>
+
+<h2>Habits</h2>
+<p class="muted" style="margin-top:6px;">Tap to toggle, then save.</p>
+
+<form method="post">
+  <input type="hidden" name="form_type" value="habits">
+  <input type="hidden" name="date" value="{{ today }}">
+
+  {% if habits_today and habits_today|length > 0 %}
+    <div class="toggle-grid">
+      {% for h in habits_today %}
+        <label class="toggle">
+          <div>
+            <strong>{{ h.name }}</strong><br>
+            <small>Tap to mark done</small>
+          </div>
+          <input type="checkbox" name="habit_{{ h.id }}" {% if h.done %}checked{% endif %}>
+          <span class="knob"></span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <button type="submit">Save today’s habits</button>
+  {% else %}
+    <p class="muted">No habits yet. Add one below.</p>
+  {% endif %}
+</form>
+
+<div class="muted" style="margin-top:10px;">
+  <a href="{{ url_for('habits_manage') }}">Manage habits (add / enable / disable)</a>
+</div>
+
+<div class="divider"></div>
+
+
+
+<script>
+  function labelForValence(v){
+    return ({'-2':'Very unpleasant','-1':'Unpleasant','0':'Neutral','1':'Pleasant','2':'Very pleasant'})[v] || v;
+  }
+  function labelForEnergy(e){
+    return ({'-2':'Very low','-1':'Low','0':'Moderate','1':'High','2':'Very high'})[e] || e;
+  }
+
+  const valence = document.getElementById('valence');
+  const energy = document.getElementById('energy');
+  const valenceLabel = document.getElementById('valenceLabel');
+  const energyLabel = document.getElementById('energyLabel');
+
+  function sync(){
+    valenceLabel.textContent = `${valence.value} · ${labelForValence(valence.value)}`;
+    energyLabel.textContent = `${energy.value} · ${labelForEnergy(energy.value)}`;
+  }
+
+  valence.addEventListener('input', sync);
+  energy.addEventListener('input', sync);
+  sync();
+</script>
+
+<a href="/analytics">View analytics</a><br>
+<a href="{{ url_for('history') }}">View history</a>
+{% endblock %}

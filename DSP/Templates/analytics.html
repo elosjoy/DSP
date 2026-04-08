@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Wellbeing analytics</h1>
+<p class="muted">Trends from the last two weeks.</p>
+
+<div style="margin-bottom:20px;">
+  <a href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+</div>
+
+<h2>Mood trends</h2>
+<p class="muted">Valence represents emotional positivity, while energy reflects activation levels.</p>
+<canvas id="affectChart" height="120"></canvas>
+
+<h2 style="margin-top:40px;">Screen time trends</h2>
+<p class="muted">Daily screen time in hours.</p>
+<canvas id="screenChart" height="120"></canvas>
+
+<h2 style="margin-top:40px;">Habit completion trends</h2>
+<p class="muted">Number of habits completed per day.</p>
+<canvas id="habitChart" height="120"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // convert ISO dates to month/day strings since we're only showing the last two weeks
+  const rawLabels = {{ labels|tojson }};
+  const labels = rawLabels.map(l => {
+    const d = new Date(l);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  });
+
+  const valence = {{ valence|tojson }};
+  const energy = {{ energy|tojson }};
+  const screen = {{ screen_hours|tojson }};
+  const habits = {{ habit_score|tojson }};
+
+  const purple = "#8b5cf6";
+  const pink = "#ec4899";
+
+  // Affect chart
+  new Chart(document.getElementById("affectChart"), {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Valence",
+          data: valence,
+          borderColor: purple,
+          backgroundColor: "rgba(139,92,246,0.15)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          spanGaps: true
+        },
+        {
+          label: "Energy",
+          data: energy,
+          borderColor: pink,
+          backgroundColor: "rgba(236,72,153,0.15)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          spanGaps: true
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: { position: "top" }
+      },
+      scales: {
+        x: { grid: { color: "rgba(0,0,0,0.05)" } },
+        y: {
+          grid: { color: "rgba(0,0,0,0.05)" },
+          min: -2.2,
+          max: 2.2,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+
+  // Screen time chart
+  new Chart(document.getElementById("screenChart"), {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Screen time (hours)",
+          data: screen,
+          borderColor: pink,
+          backgroundColor: "rgba(236,72,153,0.15)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          spanGaps: true
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { grid: { color: "rgba(0,0,0,0.05)" } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // Habit completion chart
+  new Chart(document.getElementById("habitChart"), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Habits completed",
+          data: habits,
+          backgroundColor: purple
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      layout: {
+        padding: {
+          top: 20
+        }
+      },
+      scales: {
+        x: { grid: { color: "rgba(0,0,0,0.05)" } },
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+</script>
+
+{% endblock %}

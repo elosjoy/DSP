@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Manage habits</h1>
+<p class="muted">Add habits you want to track. Disable ones you don’t want on the home page.</p>
+
+<form method="post">
+  <input type="hidden" name="action" value="add">
+  <label>New habit name</label>
+  <input type="text" name="name" maxlength="40" placeholder="e.g., Read 10 pages" required>
+  <button type="submit">Add habit</button>
+</form>
+
+<div class="divider"></div>
+
+<h2>Your habits</h2>
+
+{% if habits and habits|length > 0 %}
+  <div class="toggle-grid">
+    {% for h in habits %}
+      <form method="post" style="margin:0;">
+        <input type="hidden" name="action" value="toggle">
+        <input type="hidden" name="habit_id" value="{{ h.id }}">
+        <input type="hidden" name="is_active" value="{{ 0 if h.is_active else 1 }}">
+
+        <button type="submit" class="toggle" style="width:100%; border:1px solid var(--stroke); background: rgba(255,255,255,.75); color: var(--text); box-shadow:none; margin-top:0; text-align:left;">
+          <div>
+            <strong>{{ h.name }}</strong><br>
+            <small>
+              {% if h.is_active %}
+                Active on home page (click to disable)
+              {% else %}
+                Disabled (click to enable)
+              {% endif %}
+            </small>
+          </div>
+          <span class="knob" style="opacity: {{ 1 if h.is_active else 0.45 }};"></span>
+        </button>
+      </form>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="muted">No habits yet.</p>
+{% endif %}
+
+<div class="muted" style="margin-top:12px;">
+  <a href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</div>
+
+{% endblock %}

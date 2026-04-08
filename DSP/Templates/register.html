@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Create account</h1>
+<p class="muted">Create an account to start tracking your wellbeing.</p>
+
+<form method="post">
+  <label>Email</label>
+  <input type="email" name="email" placeholder="you@example.com" required>
+
+  <label>Password</label>
+  <input type="password" name="password" placeholder="At least 8 characters" required>
+
+  <button type="submit">Register</button>
+</form>
+
+<div class="muted">
+  Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+</div>
+
+{% endblock %}

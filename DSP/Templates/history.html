@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Mood history</h1>
+<p class="muted">Your recent affect entries.</p>
+
+{% if entries %}
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Valence</th>
+      <th>Energy</th>
+      <th>Screen Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entries %}
+    <tr>
+      <td>{{ e.date }}</td>
+      <td>{{ e.valence }} ({{ e.valence_label }})</td>
+      <td>{{ e.energy }} ({{ e.energy_label }})</td>
+      <td>
+        {% if e.screen_hours %}
+          {{ e.screen_hours }} hours
+        {% else %}
+          —
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">No entries yet.</p>
+{% endif %}
+
+<div class="muted" style="margin-top:12px;">
+  <a href="{{ url_for('dashboard') }}">Back to dashboard</a>
+</div>
+
+{% endblock %}
